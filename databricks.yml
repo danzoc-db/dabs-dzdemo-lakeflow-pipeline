@@ -1,0 +1,54 @@
+# This is a Databricks asset bundle definition for lakeflow_complaints_pipeline.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: lakeflow_complaints_pipeline
+
+include:
+  - resources/*.yml
+  - resources/*/*.yml
+
+# Variable declarations. These variables are assigned in the dev/prod targets below.
+
+targets:
+  dev:
+    # The default target uses 'mode: development' to create a development copy.
+    # - Deployed resources get prefixed with '[dev my_user_name]'
+    # - Any job schedules and triggers are paused by default (Develop Mode)
+    # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-984752964297111.11.azuredatabricks.net
+    variables:
+      catalog: dz_demos_dev
+      schema: ${workspace.current_user.short_name}
+      volume_path: /Volumes/dz_demos_dev/lakeflow_dec_pipe_r_scripts/demo_source_data
+      
+  prod:
+    mode: production
+    workspace:
+      host: https://adb-984752964297111.11.azuredatabricks.net #  For this demo, it is the same workspace
+      # We explicitly deploy to /Workspace/Users/user@company.com to make sure we only have a single copy.
+      root_path: /Workspace/Users/daniel.zoccali@databricks.com/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: dz_demos
+      schema: lakeflow_dec_pipe_r_scripts
+      volume_path: /Volumes/dz_demos/lakeflow_dec_pipe_r_scripts/demo_source_data
+    permissions:
+      - user_name: daniel.zoccali@databricks.com
+        level: CAN_MANAGE
+
+# Variables that can be referenced throughout the bundle
+variables:
+  catalog:
+    description: Unity Catalog catalog name
+    default: dz_demos
+  
+  schema:
+    description: Unity Catalog schema name
+    default: lakeflow_dec_pipe_r_scripts
+  
+  volume_path:
+    description: Path to source data volume
+    default: /Volumes/dz_demos/lakeflow_dec_pipe_r_scripts/demo_source_data
+

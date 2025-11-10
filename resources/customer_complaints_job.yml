@@ -1,0 +1,46 @@
+# Job to run the Customer Complaints Pipeline daily
+resources:
+  jobs:
+    customer_complaints_job:
+      name: "[${bundle.target}] Customer Complaints Daily Pipeline Job"
+      
+      # Daily schedule trigger
+      trigger:
+        periodic:
+          interval: 1
+          unit: DAYS
+      
+      # Email notifications on failure
+      email_notifications:
+        on_failure:
+          - daniel.zoccali@databricks.com
+        on_duration_warning_threshold_exceeded:
+          - daniel.zoccali@databricks.com
+      
+      # Job parameters
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+        - name: schema
+          default: ${var.schema}
+        - name: volume_path
+          default: ${var.volume_path}
+      
+      # Task configuration
+      tasks:
+        - task_key: refresh_customer_complaints_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.customer_complaints_pipeline.id}
+            full_refresh: false
+      
+      # Compute environment
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "2"
+      
+      # Timeout settings (4 hours)
+      timeout_seconds: 14400
+      
+      # Max concurrent runs
+      max_concurrent_runs: 1

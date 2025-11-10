@@ -1,0 +1,38 @@
+# Lakeflow Declarative Pipeline Configuration
+resources:
+  pipelines:
+    customer_complaints_pipeline:
+      name: "[${bundle.target}] Customer Complaints R Migration Pipeline"
+      catalog: ${var.catalog}
+      schema: ${var.schema}
+      serverless: true
+      
+      # Explicitly include each transformation file
+      libraries:
+        - file:
+            path: ../src/pipelines/transformations/customer_complaints_bronze.sql
+        - file:
+            path: ../src/pipelines/transformations/customer_complaints_silver.sql
+        - file:
+            path: ../src/pipelines/transformations/customer_complaints_gold.sql
+      
+      # Configuration parameters
+      configuration:
+        volume_path: ${var.volume_path}
+        
+      # Environment settings for dependencies
+      environment:
+        dependencies:
+          # Include any Python dependencies as YAML list if needed
+          - scikit-learn
+
+      # Notifications for pipeline failures
+      notifications:
+        - email_recipients:
+            - daniel.zoccali@databricks.com
+          alerts:
+            - on-update-failure
+            - on-update-fatal-failure
+            - on-flow-failure
+
+
