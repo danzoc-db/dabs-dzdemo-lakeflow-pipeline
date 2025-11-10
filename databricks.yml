@@ -12,28 +12,56 @@ include:
 targets:
   dev:
     # The default target uses 'mode: development' to create a development copy.
-    # - Deployed resources get prefixed with '[dev my_user_name]'
+    # - Deployed resources get prefixed with '[dev]' (custom prefix)
     # - Any job schedules and triggers are paused by default (Develop Mode)
     # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
     mode: development
     default: true
     workspace:
       host: https://adb-984752964297111.11.azuredatabricks.net
+    
+    # Custom prefix for dev resources (includes username for uniqueness in development mode)
+    presets:
+      name_prefix: "[dev ${workspace.current_user.short_name}]"
+    
     variables:
       catalog: dz_demos_dev
       schema: ${workspace.current_user.short_name}
       volume_path: /Volumes/dz_demos_dev/lakeflow_dec_pipe_r_scripts/demo_source_data
+      # Dev uses all-purpose cluster (not serverless)
+      pipeline_serverless: false
+      # Dev environment tags
+      environment_tags:
+        Environment: "development"
+        Project: "lakeflow_complaints_demo"
+        Owner: "daniel.zoccali@databricks.com"
+        CostCenter: "engineering"
       
   prod:
     mode: production
     workspace:
       host: https://adb-984752964297111.11.azuredatabricks.net #  For this demo, it is the same workspace
-      # We explicitly deploy to /Workspace/Users/user@company.com to make sure we only have a single copy.
+      # We explicitly deploy to /Workspace/Users/user@company.com to make sure we only have a single copy
       root_path: /Workspace/Users/daniel.zoccali@databricks.com/.bundle/${bundle.name}/${bundle.target}
+    
+    # Run production pipeline as service principal
+    run_as:
+      service_principal_name: dz_demos_service_principal
+    
     variables:
       catalog: dz_demos
       schema: lakeflow_dec_pipe_r_scripts
       volume_path: /Volumes/dz_demos/lakeflow_dec_pipe_r_scripts/demo_source_data
+      # Prod uses job clusters (serverless compute)
+      pipeline_serverless: true
+      # Production environment tags
+      environment_tags:
+        Environment: "production"
+        Project: "lakeflow_complaints_demo"
+        Owner: "daniel.zoccali@databricks.com"
+        CostCenter: "business"
+        Criticality: "high"
+    
     permissions:
       - user_name: daniel.zoccali@databricks.com
         level: CAN_MANAGE
@@ -51,4 +79,17 @@ variables:
   volume_path:
     description: Path to source data volume
     default: /Volumes/dz_demos/lakeflow_dec_pipe_r_scripts/demo_source_data
+  
+  # Environment-specific compute configuration
+  pipeline_serverless:
+    description: Whether to use serverless compute for pipeline
+    default: false
+  
+  # Environment tags for resource tracking
+  environment_tags:
+    description: Tags to apply to all resources
+    default:
+      Environment: "unknown"
+      Project: "lakeflow_complaints_demo"
+      Owner: "daniel.zoccali@databricks.com"
 

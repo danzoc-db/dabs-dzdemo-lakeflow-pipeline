@@ -1,8 +1,8 @@
 # Job to run the Customer Complaints Pipeline daily
 resources:
   jobs:
-    customer_complaints_job:
-      name: "[${bundle.target}] Customer Complaints Daily Pipeline Job"
+    customer_complaints_daily_job:
+      name: "customer_complaints_daily_job"
       
       # Daily schedule trigger
       trigger:
@@ -16,6 +16,9 @@ resources:
           - daniel.zoccali@databricks.com
         on_duration_warning_threshold_exceeded:
           - daniel.zoccali@databricks.com
+      
+      # Apply environment tags to job
+      tags: ${var.environment_tags}
       
       # Job parameters
       parameters:

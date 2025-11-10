@@ -2,10 +2,21 @@
 resources:
   pipelines:
     customer_complaints_pipeline:
-      name: "[${bundle.target}] Customer Complaints R Migration Pipeline"
+      name: "customer_complaints_r_migration_pipeline"
       catalog: ${var.catalog}
       schema: ${var.schema}
-      serverless: true
+      serverless: ${var.pipeline_serverless}
+      
+      # All-purpose cluster configuration for development (when serverless: false)
+      clusters:
+        - label: "main"
+          node_type_id: "i3.xlarge"  # Medium-sized instances for development work
+          driver_node_type_id: "i3.xlarge"
+          num_workers: 2
+          spark_conf:
+            "spark.databricks.cluster.profile": "serverless"
+            "spark.databricks.delta.preview.enabled": "true"
+          custom_tags: ${var.environment_tags}
       
       # Explicitly include each transformation file
       libraries:
