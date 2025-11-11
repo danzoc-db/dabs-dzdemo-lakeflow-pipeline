@@ -11,13 +11,13 @@ This project demonstrates advanced DAB best practices for customer demos and pro
 
 ### 2. Environment-Specific Compute Configuration
 - **Development**: 
-  - Uses all-purpose clusters (`pipeline_serverless: false`)
-  - Node type: `i3.xlarge` with 2 workers for interactive development
-  - Persistent clusters for debugging and experimentation
+  - Uses serverless compute (`pipeline_serverless: true`)
+  - Fast iteration and development with managed compute
+  - Cost-effective for development workloads
 - **Production**: 
-  - Uses serverless compute / job clusters (`pipeline_serverless: true`)
-  - Auto-terminating, cost-optimized for production workloads
-  - Managed compute with automatic scaling
+  - Uses job clusters (`pipeline_serverless: false`)
+  - Node type: `Standard_D8s_v3` with 3 workers for production workloads
+  - Dedicated compute resources with advanced Spark optimizations
 
 ### 3. Comprehensive Environment Tagging
 Every deployed resource includes environment-specific tags:
@@ -54,14 +54,14 @@ CostCenter: "engineering" | "production"
 
 ### Multi-Environment Support
 - **Dev Target**: `databricks bundle deploy --target dev`
-  - Uses all-purpose clusters for interactive development
+  - Uses serverless compute for fast development iteration
   - Deploys to user workspace
-  - Persistent compute for debugging
+  - Managed compute with automatic scaling
 
 - **Prod Target**: `databricks bundle deploy --target prod`
-  - Uses serverless/job clusters for cost optimization
+  - Uses dedicated job clusters for production workloads
   - Service principal authentication
-  - Auto-terminating production workloads
+  - Optimized Spark configurations for performance
 
 ### Automated Pipeline Execution
 - **Daily Job Scheduler**: Triggers pipeline refresh every day
@@ -78,7 +78,7 @@ CostCenter: "engineering" | "production"
 
 1. **Variable-Based Configuration**: Environment-specific variables
 2. **Resource References**: Pipeline ID references in job configuration
-3. **Conditional Compute**: Serverless vs cluster-based compute
+5. **Conditional Compute**: Serverless for dev vs dedicated clusters for prod
 4. **Preset Customization**: Custom naming prefixes per environment
 5. **Tag Propagation**: Consistent tagging across all resources
 6. **Service Principal Auth**: Production-ready authentication
