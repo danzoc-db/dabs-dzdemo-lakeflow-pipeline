@@ -74,19 +74,32 @@ The CI/CD pipeline includes the following stages:
 
 ### Step 4: Verify Service Principal Permissions
 
+**Important**: Service principals have two different IDs:
+- **Numeric ID** (`147401867297466`) - Used for `databricks service-principals get` commands
+- **Application ID** (`45d38527-d29d-4e63-8cbb-0608e7472025`) - Used for authentication and grants
+
 Run these commands to ensure proper permissions:
 
 ```bash
-# Verify service principal exists
-databricks service-principals get --id "45d38527-d29d-4e63-8cbb-0608e7472025"
+# Verify service principal exists (use numeric ID for get command)
+databricks service-principals get "147401867297466"
 
-# Grant catalog permissions (if not already done)
-databricks grants update --securable-type CATALOG --securable-name dz_demos \
+# List service principals to find yours
+databricks service-principals list | grep -i "dz_demos_service_principal"
+
+# Grant catalog permissions using application ID
+databricks grants update CATALOG dz_demos \
   --principal "45d38527-d29d-4e63-8cbb-0608e7472025" --privileges USE_CATALOG
 
-# Grant schema permissions
-databricks grants update --securable-type SCHEMA --securable-name dz_demos.lakeflow_dec_pipe_r_scripts \
+# Grant schema permissions using application ID
+databricks grants update SCHEMA dz_demos.lakeflow_dec_pipe_r_scripts \
   --principal "45d38527-d29d-4e63-8cbb-0608e7472025" --privileges USE_SCHEMA,CREATE_TABLE
+
+# Verify grants on catalog
+databricks grants get CATALOG dz_demos
+
+# Verify grants on schema  
+databricks grants get SCHEMA dz_demos.lakeflow_dec_pipe_r_scripts
 ```
 
 ## 🔄 Workflow Triggers
@@ -145,19 +158,25 @@ Error: Invalid authentication credentials
 ```
 **Solution**: Verify `DATABRICKS_TOKEN` and `DATABRICKS_CLIENT_SECRET` are correct
 
-#### 2. Permission Errors
+#### 2. Service Principal ID Errors
+```
+Error: invalidValue Invalid request. Id '45d38527-d29d-4e63-8cbb-0608e7472025' is invalid.
+```
+**Solution**: Use the numeric ID (`147401867297466`) for CLI get commands, not the application ID
+
+#### 3. Permission Errors
 ```
 Error: User does not have USE CATALOG on Catalog 'dz_demos'
 ```
 **Solution**: Grant service principal proper catalog/schema permissions
 
-#### 3. Bundle Validation Errors
+#### 4. Bundle Validation Errors
 ```
 Error: cannot create pipeline: You cannot provide cluster settings when using serverless compute
 ```
 **Solution**: Ensure cluster configuration is only in dev target, not shared pipeline config
 
-#### 4. File Access Errors
+#### 5. File Access Errors
 ```
 File was not found or the run_as user does not have permissions to access it
 ```
@@ -170,10 +189,19 @@ File was not found or the run_as user does not have permissions to access it
 databricks bundle validate --target dev
 databricks bundle validate --target prod
 
-# Check service principal
-databricks service-principals get --id "45d38527-d29d-4e63-8cbb-0608e7472025"
+# Check service principal (use numeric ID)
+databricks service-principals get "147401867297466"
 
-# Test authentication
+# List all service principals (to find the correct IDs)
+databricks service-principals list | grep -i "dz_demos_service_principal"
+
+# Check current authentication
+databricks auth describe
+
+# Test service principal authentication (replace with actual client secret)
+export DATABRICKS_CLIENT_ID="45d38527-d29d-4e63-8cbb-0608e7472025"
+export DATABRICKS_CLIENT_SECRET="your-client-secret"
+export DATABRICKS_HOST="https://adb-984752964297111.11.azuredatabricks.net"
 databricks auth describe
 ```
 
