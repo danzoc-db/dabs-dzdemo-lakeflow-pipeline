@@ -19,10 +19,12 @@ targets:
     default: true
     workspace:
       host: https://adb-984752964297111.11.azuredatabricks.net
+      # We explicitly deploy to /Workspace/Users/user@company.com to make sure we only have a single copy
+      root_path: /Workspace/Users/daniel.zoccali@databricks.com/.bundle/${bundle.name}/${bundle.target}
     
     # Custom prefix for dev resources (includes username for uniqueness in development mode)
     presets:
-      name_prefix: "[dev ${workspace.current_user.short_name}]"
+      name_prefix: "[dev_${workspace.current_user.short_name}]"
     
     variables:
       catalog: dz_demos_dev
@@ -36,17 +38,32 @@ targets:
         Project: "lakeflow_complaints_demo"
         Owner: "daniel.zoccali@databricks.com"
         CostCenter: "engineering"
+    
+    # Dev-specific resource overrides
+    resources:
+      pipelines:
+        customer_complaints_pipeline:
+          # Add cluster configuration for dev environment (all-purpose clusters)
+          clusters:
+            - node_type_id: "Standard_D8s_v3"
+              driver_node_type_id: "Standard_D8s_v3"
+              num_workers: 2
+              spark_conf:
+                "spark.databricks.delta.preview.enabled": "true"
+                "spark.sql.adaptive.enabled": "true"
+                "spark.sql.adaptive.coalescePartitions.enabled": "true"
+              custom_tags: ${var.environment_tags}
       
   prod:
     mode: production
     workspace:
       host: https://adb-984752964297111.11.azuredatabricks.net #  For this demo, it is the same workspace
       # We explicitly deploy to /Workspace/Users/user@company.com to make sure we only have a single copy
-      root_path: /Workspace/Users/daniel.zoccali@databricks.com/.bundle/${bundle.name}/${bundle.target}
+      root_path: /Workspace/Prod/.bundle/${bundle.name}/${bundle.target}
     
     # Run production pipeline as service principal
     run_as:
-      service_principal_name: dz_demos_service_principal
+      service_principal_name: 45d38527-d29d-4e63-8cbb-0608e7472025
     
     variables:
       catalog: dz_demos
@@ -64,6 +81,8 @@ targets:
     
     permissions:
       - user_name: daniel.zoccali@databricks.com
+        level: CAN_MANAGE
+      - service_principal_name: 45d38527-d29d-4e63-8cbb-0608e7472025
         level: CAN_MANAGE
 
 # Variables that can be referenced throughout the bundle

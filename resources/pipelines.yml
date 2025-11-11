@@ -7,17 +7,6 @@ resources:
       schema: ${var.schema}
       serverless: ${var.pipeline_serverless}
       
-      # All-purpose cluster configuration for development (when serverless: false)
-      clusters:
-        - node_type_id: "Standard_D8s_v3"  # Medium-sized instances for development work
-          driver_node_type_id: "Standard_D8s_v3"
-          num_workers: 2
-          spark_conf:
-            "spark.databricks.delta.preview.enabled": "true"
-            "spark.sql.adaptive.enabled": "true"
-            "spark.sql.adaptive.coalescePartitions.enabled": "true"
-          custom_tags: ${var.environment_tags}
-      
       # Explicitly include each transformation file
       libraries:
         - file:
