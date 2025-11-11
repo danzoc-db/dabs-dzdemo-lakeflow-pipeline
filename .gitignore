@@ -2,6 +2,8 @@
 .databricks/
 .bundle/
 
+# Local Test Space
+scratch/
 # Python
 __pycache__/
 *.py[cod]
