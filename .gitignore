@@ -2,8 +2,14 @@
 .databricks/
 .bundle/
 
+# Github actions setup
+GITHUB_ACTIONS_SETUP.md
+README_CICD.md
+validate-cicd.sh
+
 # Local Test Space
 scratch/
+
 # Python
 __pycache__/
 *.py[cod]
