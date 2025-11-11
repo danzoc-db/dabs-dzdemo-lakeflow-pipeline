@@ -18,10 +18,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Databricks CLI
-        uses: databricks/setup-cli@main
-        with:
-          databricks-cli-version: latest
+      - name: Setup Databricks CLI v2 (Bundle Support)
+        uses: databricks/setup-cli@v0.214.0
 
       - name: Validate dev bundle
         env:
@@ -47,10 +45,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Databricks CLI
-        uses: databricks/setup-cli@main
-        with:
-          databricks-cli-version: latest
+      - name: Setup Databricks CLI v2 (Bundle Support)
+        uses: databricks/setup-cli@v0.214.0
 
       - name: Deploy to dev
         env:
@@ -77,10 +73,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Databricks CLI
-        uses: databricks/setup-cli@main
-        with:
-          databricks-cli-version: latest
+      - name: Setup Databricks CLI v2 (Bundle Support)
+        uses: databricks/setup-cli@v0.214.0
 
       - name: Deploy to prod
         env:
@@ -106,10 +100,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Databricks CLI
-        uses: databricks/setup-cli@main
-        with:
-          databricks-cli-version: latest
+      - name: Setup Databricks CLI v2 (Bundle Support)
+        uses: databricks/setup-cli@v0.214.0
 
       - name: Run pipeline tests
         env:
