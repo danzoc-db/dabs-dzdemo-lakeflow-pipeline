@@ -30,8 +30,8 @@ targets:
       catalog: dz_demos_dev
       schema: ${workspace.current_user.short_name}
       volume_path: /Volumes/dz_demos_dev/lakeflow_dec_pipe_r_scripts/demo_source_data
-      # Dev uses all-purpose cluster (not serverless)
-      pipeline_serverless: false
+      # Dev uses serverless compute for fast iteration
+      pipeline_serverless: true
       # Dev environment tags
       environment_tags:
         Environment: "development"
@@ -39,21 +39,7 @@ targets:
         Owner: "daniel.zoccali@databricks.com"
         CostCenter: "engineering"
     
-    # Dev-specific resource overrides
-    resources:
-      pipelines:
-        customer_complaints_pipeline:
-          # Add cluster configuration for dev environment (all-purpose clusters)
-          clusters:
-            - node_type_id: "Standard_D8s_v3"
-              driver_node_type_id: "Standard_D8s_v3"
-              num_workers: 2
-              spark_conf:
-                "spark.databricks.delta.preview.enabled": "true"
-                "spark.sql.adaptive.enabled": "true"
-                "spark.sql.adaptive.coalescePartitions.enabled": "true"
-              custom_tags: ${var.environment_tags}
-      
+    
   prod:
     mode: production
     workspace:
@@ -69,8 +55,8 @@ targets:
       catalog: dz_demos
       schema: lakeflow_dec_pipe_r_scripts
       volume_path: /Volumes/dz_demos/lakeflow_dec_pipe_r_scripts/demo_source_data
-      # Prod uses job clusters (serverless compute)
-      pipeline_serverless: true
+      # Prod uses job clusters for production workloads
+      pipeline_serverless: false
       # Production environment tags
       environment_tags:
         Environment: "production"
@@ -79,6 +65,22 @@ targets:
         CostCenter: "business"
         Criticality: "high"
     
+    # Prod-specific resource overrides
+    resources:
+      pipelines:
+        customer_complaints_pipeline:
+          # Add cluster configuration for production environment (job clusters)
+          clusters:
+            - node_type_id: "Standard_D8s_v3"
+              driver_node_type_id: "Standard_D8s_v3"
+              num_workers: 3  # More workers for production workloads
+              spark_conf:
+                "spark.databricks.delta.preview.enabled": "true"
+                "spark.sql.adaptive.enabled": "true"
+                "spark.sql.adaptive.coalescePartitions.enabled": "true"
+                "spark.sql.adaptive.skewJoin.enabled": "true"  # Production optimizations
+              custom_tags: ${var.environment_tags}
+
     permissions:
       - user_name: daniel.zoccali@databricks.com
         level: CAN_MANAGE
