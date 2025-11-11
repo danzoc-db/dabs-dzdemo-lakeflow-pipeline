@@ -1,6 +1,10 @@
 # Lakeflow Complaints Pipeline
 
-This project demonstrates a **Databricks Asset Bundle** with a **Lakeflow Declarative Pipeline** for analyzing customer complaints data. It showcases the migration from R-style data processing to Databricks' modern lakehouse patterns.
+[![Databricks DAB CI/CD](https://github.com/danzoc-db/dabs-dzdemo-lakeflow-pipeline/actions/workflows/databricks-deploy.yml/badge.svg)](https://github.com/danzoc-db/dabs-dzdemo-lakeflow-pipeline/actions/workflows/databricks-deploy.yml)
+[![Bundle Validation](https://img.shields.io/badge/bundle-validated-brightgreen)](https://github.com/danzoc-db/dabs-dzdemo-lakeflow-pipeline)
+[![Environment](https://img.shields.io/badge/environments-dev%20%7C%20prod-blue)](https://github.com/danzoc-db/dabs-dzdemo-lakeflow-pipeline)
+
+This project demonstrates a **Databricks Asset Bundle** with a **Lakeflow Declarative Pipeline** for analyzing customer complaints data. It showcases the migration from R-style data processing to Databricks' modern lakehouse patterns with **full CI/CD automation**.
 
 ## 🎯 **Demo Overview**
 
@@ -43,7 +47,24 @@ This bundle includes:
 - Daily trend analysis
 - Business metrics and KPIs
 
-## 🚀 **Getting Started**
+## � **CI/CD Pipeline**
+
+This project includes a complete **GitHub Actions CI/CD pipeline** with:
+
+### Pipeline Stages:
+1. **Validate** - Bundle validation for both dev and prod environments
+2. **Deploy Dev** - Automatic deployment to development (serverless disabled)
+3. **Test** - Optional pipeline testing and validation
+4. **Deploy Prod** - Manual approval required for production (serverless enabled)
+
+### Authentication:
+- **Development**: Personal access token
+- **Production**: Service principal (`dz_demos_service_principal`)
+
+### Setup Guide:
+📖 **[Complete CI/CD Setup Instructions](GITHUB_ACTIONS_SETUP.md)**
+
+## �🚀 **Getting Started**
 
 ### Prerequisites
 - Databricks CLI installed and configured
