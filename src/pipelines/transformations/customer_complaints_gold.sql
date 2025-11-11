@@ -134,6 +134,31 @@ AS SELECT
 -- Refreshes with each pipeline run to show latest metrics
 ;
 
+-- ----------------------------------------------------------------------------
+-- Aggregation Type 4: Department Performance Metrics
+-- Example: Average resolution time and critical complaint rate by department
+-- ----------------------------------------------------------------------------
+CREATE OR REFRESH LIVE TABLE gold_department_performance_metrics
+(
+  -- Expectation 6: Average resolution days must be non-negative
+  CONSTRAINT non_negative_avg_resolution EXPECT (avg_resolution_days >= 0),
+  
+  -- Expectation 7: Critical rate must be between 0 and 100
+  CONSTRAINT valid_critical_rate EXPECT (critical_complaint_pct >= 0 AND critical_complaint_pct <= 100)
+)
+COMMENT "Aggregates department-level performance metrics for complaints"
+AS SELECT
+  owner_department,
+  COUNT(*) AS total_complaints,
+  SUM(is_critical) AS critical_complaints,
+  ROUND(SUM(is_critical) * 100.0 / COUNT(*), 1) AS critical_complaint_pct,
+  ROUND(AVG(days_open), 1) AS avg_resolution_days,
+  COUNT(DISTINCT customer) AS unique_customers_served
+FROM LIVE.silver_complaints_with_owners
+GROUP BY owner_department
+ORDER BY owner_department
+;
+
 -- ============================================================================
 -- GOLD LAYER SUMMARY
 -- ============================================================================
